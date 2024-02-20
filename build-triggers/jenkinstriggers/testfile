@@ -1,0 +1,59 @@
+Generate JOB URL
+
+1. Job Configure => Build Triggers
+2. Check mark on “Trigger builds remotely”
+3. Give a token name
+4. Generate URL & save in a file
+
+Generate Token for User
+
+1. Click your username drop down button (Top right corner of the page)
+2. configure => API Token => Generate
+3. Copy token name and save username:tokenname in a file
+
+Generate CRUMB
+
+1. wget command is required for this, so download wget binary for git bash
+2. Extract content in c:/program files/Git/mingw64/bin
+3. Run below command in Git Bash, (replace username,password,Jenkins URL)
+
+THATS THE CORRECT COMMAND SYNTAX BELOW 
+√ wget -q --auth-no-challenge --user admin --password admin1234 --output-document - 'http://52.87.212.106:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+HOW RESULTS JENKINS CRUMB LOOK LIKE => Jenkins-Crumb:8e9f701feefdf722e86cb6ef62253fc048ba73007863d71a0feac17dd58de3ce
+4. Save the token in a file
+
+Build Job from URL
+By now we should have below details
+
+1. JENKINS Job URL with token
+   E:g http://52.15.216.180:8080/job/vprofile-Code-Analysis/build?token=testtoken
+2. API Token
+   USERNAME:API_TOKEN
+   E:g admin:116ce8f1ae914b477d0c74a68ffcc9777c
+3. Crumb
+   E:g Jenkins-Crumb:8cb80f4f56d6d35c2121a1cf35b7b501
+
+Fill all the above details in below URL and Execute
+curl -I -X POST http://username:APItoken @Jenkins_IP:8080/job/JOB_NAME/build?token=TOKENNAME -H "Jenkins-Crumb:CRUMB"
+e:g curl -I -X POST http://admin:110305ffb46e298491ae082236301bde8e@52.15.216.180:8080/job/ vprofile-Code-Analysis/build?token=testtoken -H "Jenkins-Crumb:8cb80f4f56d6d35c2121a1cf35b7b501"
+
+
+wget -q --auth-no-challenge --user admin --password admin123 --output-document -'http://52.87.212.106:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestFi eld,":",//crumb)'
+
+
+WHAT WE NEED TO BUILD THE REMOTE TRIGGERS SUMMARY 
+
+1. JOB URL => JENKINS_URL:PORT/job/Build/build?token=GENERATED_TOKEN_NAME 
+    http://http://52.87.212.106:8080/job/Build/build?token=mybuildtoken
+
+2. Token => LOGIN_USERNAME:GENERATED_TOKEN
+    admin:1125d085ad43d88f4af49131db0e29b7d0
+
+3. GENERATE CRUMB 
+    COMMAND: wget -q --auth-no-challenge --user admin --password admin1234 --output-document - 'http://52.87.212.106:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+    RESULTS: Jenkins-Crumb:8e9f701feefdf722e86cb6ef62253fc048ba73007863d71a0feac17dd58de3ce
+
+4. CONFIGURING URL FOR REMOTE PIPELINE TRIGGER 
+    COMMAND SYNTAX => curl -I -X POST http://username:APItoken@Jenkins_IP:8080/job/JOB_NAME/build?token=TOKENNAME -H "Jenkins-Crumb:CRUMB"
+    LOOKS-LIKE ==> curl -I -X POST http://admin:1125d085ad43d88f4af49131db0e29b7d0@52.87.212.106:8080/job/Build/build?token=mybuildtoken -H "Jenkins-Crumb:8e9f701feefdf722e86cb6ef62253fc048ba73007863d71a0feac17dd58de3ce"
+    THE CURL URL CAN BE RUN  FROM ANYWHERE INCLUDING SCRIPTS LIKE PYTHON.
