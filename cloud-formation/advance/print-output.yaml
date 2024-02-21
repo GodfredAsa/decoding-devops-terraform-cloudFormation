@@ -1,0 +1,66 @@
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html
+# We will be using 2 parameters key pairs and instant type
+# CREATE KEY PAIRS IN AWS CONSOLE IN THE SAME REGION 
+Parameters:
+  NameOfService:
+    Description: "Name of Service stack is to be used for"
+    Type: String
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+    Description: Select Instance type 
+  KeyName:
+    Description: Select EC2 Login key 
+    Type: AWS::EC2::KeyPair::KeyName
+
+Mappings: 
+  AmiRegionMap: 
+    us-east-1: 
+      "AMI": "ami-06aa3f7caf3a30282"
+    us-east-2: 
+      "AMI": "ami-05fb0b8c1424f266b"
+
+# THE BASIC NEED FOR THIS YAML FILE IS TO CREATE SG AND EC2 IN THE SAME FILE.
+# THATS WHEN CREATING THE EC2 INSTANCE NEED TO REFER THE SG IN IT TO BE USED.
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      # ImageId: "ami-06aa3f7caf3a30282" 
+      InstanceType: !Ref InstanceTypeParameter
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [ AmiRegionMap, !Ref AWS::Region, AMI]
+      Tags:
+        - Key: "Name"
+          Value: !Ref NameOfService
+      SecurityGroups:
+        - !Ref VprofileSG
+        
+# SECURITY GROUP 
+  VprofileSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow ssh & http from MyIP
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 183.83.39.124/32
+
+# 
+
+Outputs:
+  PrintSomeInfo:
+    Description: "Public DNS Name of the created EC2 instance"
+    Value: !GetAtt MyEC2Instance.PublicDnsName
+  
+
+

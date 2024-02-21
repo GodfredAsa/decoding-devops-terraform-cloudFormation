@@ -1,0 +1,29 @@
+# THE BASIC NEED FOR THIS YAML FILE IS TO CREATE SG AND EC2 IN THE SAME FILE.
+# THATS WHEN CREATING THE EC2 INSTANCE NEED TO REFER THE SG IN IT TO BE USED.
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-06aa3f7caf3a30282" 
+      InstanceType: "t2.micro"
+      Tags:
+        - Key: "Name"
+          Value: !Join [ "-", [ Lets, C, ChangeSet ] ]
+      
+      SecurityGroups:
+        - !Ref VprofileSG
+
+  VprofileSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow ssh & http from MyIP
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 183.83.39.124/32
